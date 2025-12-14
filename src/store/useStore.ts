@@ -1,131 +1,197 @@
 import { create } from 'zustand';
-import type { GameState, SnakeState, Point } from '../game/types';
+import type { GameState, SnakeState, Role, Point, Direction } from '../game/types';
 import { moveHead, GRID_SIZE } from '../game/Snake';
 import { audioEngine } from '../audio/AudioEngine';
 import { getAIAction } from '../ai/AIController';
 
-const initialSnakes: SnakeState[] = [
-    { id: 0, role: 'BASS', type: 'AI', body: [{ x: 0, y: 0 }], direction: 'RIGHT', nextDirection: 'RIGHT', color: 'bg-snake-bass', isAlive: true },
-    { id: 1, role: 'PAD', type: 'AI', body: [{ x: 7, y: 0 }], direction: 'DOWN', nextDirection: 'DOWN', color: 'bg-snake-pad', isAlive: true },
-    { id: 2, role: 'LEAD', type: 'HUMAN', body: [{ x: 0, y: 7 }], direction: 'UP', nextDirection: 'UP', color: 'bg-snake-lead', isAlive: true },
-    { id: 3, role: 'PERC', type: 'HUMAN', body: [{ x: 7, y: 7 }], direction: 'LEFT', nextDirection: 'LEFT', color: 'bg-snake-perc', isAlive: true },
-];
+const getRandomPoint = (excludeBody: Point[] = []): Point => {
+    let point = { x: 0, y: 0 };
+    let isValid = false;
+    while (!isValid) {
+        point = {
+            x: Math.floor(Math.random() * GRID_SIZE),
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+        const onBody = excludeBody.some(b => b.x === point.x && b.y === point.y);
+        if (!onBody) isValid = true;
+    }
+    return point;
+};
 
-const initialFood: Point[] = [
-    { x: 4, y: 4 }, { x: 3, y: 3 }, { x: 4, y: 3 }, { x: 3, y: 4 }
+const createSnake = (role: Role, idOverride?: number): SnakeState => {
+    const id = idOverride ?? Date.now() + Math.random();
+    const startPos = getRandomPoint();
+
+    let color = 'bg-slate-400';
+    if (role === 'BASS') color = 'bg-snake-bass';
+    if (role === 'PAD') color = 'bg-snake-pad';
+    if (role === 'LEAD') color = 'bg-snake-lead';
+    if (role === 'PERC') color = 'bg-snake-perc';
+
+    return {
+        id,
+        role,
+        type: 'AI',
+        body: [startPos],
+        direction: 'RIGHT',
+        nextDirection: 'RIGHT',
+        color,
+        isAlive: true,
+        respawnTimer: 0,
+        food: getRandomPoint([startPos])
+    };
+};
+
+const getInitialSnakes = (): SnakeState[] => [
+    createSnake('BASS', 100),
+    createSnake('PAD', 101),
+    createSnake('LEAD', 102),
+    createSnake('PERC', 103),
 ];
 
 export const useGameStore = create<GameState>((set, get) => ({
     isPlaying: false,
     bpm: 120,
-    snakes: JSON.parse(JSON.stringify(initialSnakes)),
-    food: JSON.parse(JSON.stringify(initialFood)),
+    snakes: getInitialSnakes(),
     gridSize: GRID_SIZE,
+    humanOrderIdQueue: [],
 
     togglePlay: () => set((state) => {
-        if (!state.isPlaying) {
-            audioEngine.init();
-        }
+        if (!state.isPlaying) audioEngine.init();
         return { isPlaying: !state.isPlaying };
     }),
 
     reset: () => set({
-        snakes: JSON.parse(JSON.stringify(initialSnakes)),
-        food: JSON.parse(JSON.stringify(initialFood)),
-        isPlaying: false
+        snakes: getInitialSnakes(),
+        isPlaying: false,
+        humanOrderIdQueue: []
+    }),
+
+    addSnake: (role: Role) => set((state) => ({
+        snakes: [...state.snakes, createSnake(role)]
+    })),
+
+    removeSnake: (targetId: number) => set((state) => {
+        const newSnakes = state.snakes.filter(s => s.id !== targetId);
+        const newQueue = state.humanOrderIdQueue.filter(id => id !== targetId);
+        return { snakes: newSnakes, humanOrderIdQueue: newQueue };
     }),
 
     setDirection: (id, dir) => set((state) => {
-        const newSnakes = [...state.snakes];
-        const snake = newSnakes[id];
-
-        // 180도 회전 방지 (자살 방지)
-        const isOpposite = (dir === 'UP' && snake.direction === 'DOWN') ||
-            (dir === 'DOWN' && snake.direction === 'UP') ||
-            (dir === 'LEFT' && snake.direction === 'RIGHT') ||
-            (dir === 'RIGHT' && snake.direction === 'LEFT');
-
-        if (!isOpposite && snake.isAlive) {
-            snake.nextDirection = dir;
-        }
+        const newSnakes = state.snakes.map(snake => {
+            if (snake.id !== id || !snake.isAlive) return snake;
+            const isOpposite = (dir === 'UP' && snake.direction === 'DOWN') ||
+                (dir === 'DOWN' && snake.direction === 'UP') ||
+                (dir === 'LEFT' && snake.direction === 'RIGHT') ||
+                (dir === 'RIGHT' && snake.direction === 'LEFT');
+            if (!isOpposite) return { ...snake, nextDirection: dir };
+            return snake;
+        });
         return { snakes: newSnakes };
     }),
 
+    togglePlayerType: (targetId: number) => set((state) => {
+        const newSnakes = [...state.snakes];
+        const snakeIndex = newSnakes.findIndex(s => s.id === targetId);
+        if (snakeIndex === -1) return {};
+
+        const targetSnake = { ...newSnakes[snakeIndex] };
+        let newQueue = [...state.humanOrderIdQueue];
+
+        if (targetSnake.type === 'HUMAN') {
+            targetSnake.type = 'AI';
+            newQueue = newQueue.filter(id => id !== targetId);
+        } else {
+            if (newQueue.length >= 2) {
+                const victimId = newQueue.shift();
+                const victimIndex = newSnakes.findIndex(s => s.id === victimId);
+                if (victimIndex !== -1) {
+                    newSnakes[victimIndex] = { ...newSnakes[victimIndex], type: 'AI' };
+                }
+            }
+            targetSnake.type = 'HUMAN';
+            newQueue.push(targetId);
+        }
+        newSnakes[snakeIndex] = targetSnake;
+        return { snakes: newSnakes, humanOrderIdQueue: newQueue };
+    }),
+
     tick: () => {
-        const { snakes, food } = get();
+        const { snakes } = get();
 
-        // 1. AI 연산 및 이동 방향 결정
-        const processedSnakes = snakes.map(snake => {
-            if (snake.type === 'AI' && snake.isAlive) {
-                // 현재 상태를 기반으로 다음 행동 예측
-                const aiDir = getAIAction(snake, food[snake.id], snakes);
-                return { ...snake, nextDirection: aiDir };
+        const movedSnakes = snakes.map(snake => {
+            let currentSnake = { ...snake };
+
+            if (currentSnake.type === 'AI' && currentSnake.isAlive) {
+                const aiDir = getAIAction(currentSnake, currentSnake.food, snakes);
+                currentSnake.nextDirection = aiDir;
             }
-            return snake;
-        });
 
-        // 2. 물리 엔진 업데이트 (이동 및 충돌)
-        const movedSnakes = processedSnakes.map((snake, index) => {
-            if (!snake.isAlive) return snake;
+            if (!currentSnake.isAlive) {
+                if (currentSnake.respawnTimer > 0) {
+                    return { ...currentSnake, respawnTimer: currentSnake.respawnTimer - 1 };
+                } else {
+                    const startPos = getRandomPoint();
+                    return {
+                        ...currentSnake,
+                        body: [startPos],
+                        isAlive: true,
+                        respawnTimer: 0,
+                        food: getRandomPoint([startPos]),
+                        direction: 'RIGHT' as Direction,
+                        nextDirection: 'RIGHT' as Direction
+                    };
+                }
+            }
 
-            const newHead = moveHead(snake.body, snake.nextDirection);
-            const newBody = [newHead, ...snake.body];
+            const newHead = moveHead(currentSnake.body, currentSnake.nextDirection);
 
-            // 사과 섭취 판정
-            const myFood = food[index];
+            const isWallCollision = newHead.x < 0 || newHead.x >= GRID_SIZE || newHead.y < 0 || newHead.y >= GRID_SIZE;
+            const isSelfCollision = currentSnake.body.some((segment, idx) => {
+                if (idx === currentSnake.body.length - 1) return false;
+                return segment.x === newHead.x && segment.y === newHead.y;
+            });
 
-            if (newHead.x === myFood.x && newHead.y === myFood.y) {
-                // 사과 재배치 (뱀 몸통 제외한 랜덤 위치 - 간단 구현)
-                food[index] = {
-                    x: Math.floor(Math.random() * GRID_SIZE),
-                    y: Math.floor(Math.random() * GRID_SIZE)
-                };
+            if (isWallCollision || isSelfCollision) {
+                return { ...currentSnake, isAlive: false, respawnTimer: 2 };
+            }
+
+            let newBody = [newHead, ...currentSnake.body];
+            let newFood = currentSnake.food;
+
+            if (newHead.x === currentSnake.food.x && newHead.y === currentSnake.food.y) {
+                newFood = getRandomPoint(newBody);
             } else {
-                newBody.pop(); // 꼬리 자르기
+                newBody.pop();
             }
 
-            return { ...snake, body: newBody, direction: snake.nextDirection };
+            return { ...currentSnake, body: newBody, direction: currentSnake.nextDirection, food: newFood };
         });
 
-        // 3. 오디오 트리거 (Musical Mapping)
         movedSnakes.forEach(snake => {
             if (!snake.isAlive) return;
-
             const head = snake.body[0];
 
-            // ==========================================
-            // Grid-to-Music Mapping
-            // ==========================================
-
             if (snake.role === 'BASS') {
-                // Y축 좌표를 피치로 매핑
                 const scale = [36, 39, 41, 43, 46, 48, 51, 53];
                 const index = Math.min(Math.max(GRID_SIZE - 1 - head.y, 0), scale.length - 1);
                 audioEngine.playBass(scale[index]);
             }
             else if (snake.role === 'PAD') {
-                // X축 좌표에 따라 코드 진행 변경
-                const chords = [
-                    [48, 51, 55],
-                    [44, 48, 51],
-                    [41, 44, 48],
-                    [43, 46, 50]
-                ];
+                const chords = [[48, 51, 55], [44, 48, 51], [41, 44, 48], [43, 46, 50]];
                 const chordIdx = Math.floor(head.x / 2) % 4;
                 audioEngine.playPad(chords[chordIdx]);
             }
             else if (snake.role === 'LEAD') {
-                // 리드는 멜로디. X+Y를 조합하여 넓은 음역대 사용
                 const note = 60 + head.x + (GRID_SIZE - head.y);
                 audioEngine.playLead(note);
             }
             else if (snake.role === 'PERC') {
-                // 특정 구역 진입 시 드럼 연주
-                if (head.y === GRID_SIZE - 1) audioEngine.playPerc(0); // Kick
-                if (head.y === 0) audioEngine.playPerc(1); // Snare
+                if (head.y === GRID_SIZE - 1) audioEngine.playPerc(0);
+                if (head.y === 0) audioEngine.playPerc(1);
             }
         });
 
-        set({ snakes: movedSnakes, food: [...food] });
+        set({ snakes: movedSnakes });
     }
 }));

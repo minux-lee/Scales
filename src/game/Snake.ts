@@ -13,10 +13,5 @@ export function moveHead(body: Point[], direction: Direction): Point {
         case 'RIGHT': x += 1; break;
     }
 
-    if (x < 0) x = GRID_SIZE - 1;
-    if (x >= GRID_SIZE) x = 0;
-    if (y < 0) y = GRID_SIZE - 1;
-    if (y >= GRID_SIZE) y = 0;
-
     return { x, y };
 }

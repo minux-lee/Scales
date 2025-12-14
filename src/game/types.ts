@@ -12,18 +12,23 @@ export interface SnakeState {
     nextDirection: Direction;
     color: string;
     isAlive: boolean;
+    respawnTimer: number;
+    food: Point;
 }
 
 export interface GameState {
     isPlaying: boolean;
     bpm: number;
     snakes: SnakeState[];
-    food: Point[];
     gridSize: number;
+    humanOrderIdQueue: number[];
 
-    // Actions
     togglePlay: () => void;
     setDirection: (id: number, dir: Direction) => void;
     tick: () => void;
     reset: () => void;
+    togglePlayerType: (id: number) => void;
+
+    addSnake: (role: Role) => void;
+    removeSnake: (id: number) => void;
 }
