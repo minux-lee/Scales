@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
-// --- Small Components ---
 const TechBadge = ({ children }: { children: React.ReactNode }) => (
     <span className="px-3 py-1 text-xs font-mono font-bold text-slate-300 bg-slate-800 rounded-full border border-slate-700">
         {children}
@@ -38,7 +37,15 @@ const GitHubProfile = ({ username }: { username: string }) => (
     </a>
 );
 
-// --- Main Component ---
+const CodeBlock = ({ label, code }: { label?: string, code: string }) => (
+    <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden font-mono text-sm relative group my-2">
+        {label && <div className="bg-slate-900/50 px-4 py-2 text-[10px] text-slate-500 border-b border-slate-800 font-bold uppercase tracking-wider">{label}</div>}
+        <div className="p-4 text-slate-300 overflow-x-auto">
+            <pre>{code}</pre>
+        </div>
+    </div>
+);
+
 export const AboutSection: React.FC = () => {
     const [isAIDetailsOpen, setIsAIDetailsOpen] = useState(false);
 
@@ -46,7 +53,6 @@ export const AboutSection: React.FC = () => {
         <section className="w-full bg-slate-950 py-24 px-4 border-t border-slate-900">
             <div className="max-w-5xl mx-auto space-y-24">
 
-                {/* 1. Introduction */}
                 <div className="text-center space-y-6">
                     <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
                         THE ARCHITECTURE OF <br />
@@ -63,7 +69,6 @@ export const AboutSection: React.FC = () => {
                     </p>
                 </div>
 
-                {/* 2. Motivation */}
                 <div>
                     <SectionTitle>💡 Motivation & Concept</SectionTitle>
                     <div className="grid md:grid-cols-2 gap-8">
@@ -107,7 +112,6 @@ export const AboutSection: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 3. Tech Stack */}
                 <div>
                     <SectionTitle>🛠 Tech Stack & Engineering</SectionTitle>
                     <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800">
@@ -150,7 +154,6 @@ export const AboutSection: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 4. Musical Logic */}
                 <div>
                     <SectionTitle>🎹 Musical Logic Implementation</SectionTitle>
                     <p className="text-slate-400 mb-8">
@@ -184,7 +187,6 @@ export const AboutSection: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 5. AI Architecture (Deep Dive) */}
                 <div>
                     <SectionTitle>🧠 AI Architecture: DQN Agent</SectionTitle>
                     <div className="bg-slate-900/30 p-8 rounded-xl border border-slate-800">
@@ -218,7 +220,6 @@ export const AboutSection: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Collapsible Details */}
                             <div className={clsx(
                                 "grid gap-8 overflow-hidden transition-all duration-500 ease-in-out border-t border-slate-800/50",
                                 isAIDetailsOpen ? "mt-6 pt-6 opacity-100 max-h-[1000px]" : "max-h-0 opacity-0"
@@ -288,7 +289,43 @@ export const AboutSection: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 6. Footer & Credits */}
+                <div>
+                    <SectionTitle>📦 Installation & Usage</SectionTitle>
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <h4 className="text-white font-bold text-lg">1. Prerequisites</h4>
+                            <ul className="list-disc list-inside text-slate-400 space-y-2 ml-2">
+                                <li><strong className="text-slate-200">Node.js (v18+)</strong>: Required for the frontend and build process.</li>
+                                <li><strong className="text-slate-200">Python 3.9+</strong>: (Optional) Only required if you intend to retrain the reinforcement learning model.</li>
+                            </ul>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h4 className="text-white font-bold text-lg">2. Setup & Run</h4>
+                            <CodeBlock label="BASH" code={`git clone https://github.com/minux-lee/Scales.git
+cd Scales
+npm install
+npm run dev`} />
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <h4 className="text-white font-bold text-lg">3. Retraining the Model (Optional)</h4>
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">PYTHON</span>
+                            </div>
+                            <p className="text-slate-400 text-sm">
+                                The project includes a pre-trained model in <code className="bg-slate-800 px-1 rounded text-slate-300">public/models/</code>.
+                                To retrain the agent with new parameters:
+                            </p>
+                            <CodeBlock label="BASH" code={`# Install Python dependencies
+pip install tensorflow gymnasium numpy tensorflowjs
+
+# Run training script
+python train_snake.py`} />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="pt-20 pb-8 text-center border-t border-slate-900">
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-slate-500 text-xs font-bold tracking-widest uppercase mb-2">
