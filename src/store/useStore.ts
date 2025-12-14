@@ -175,40 +175,40 @@ export const useGameStore = create<GameState>((set, get) => ({
             if (snake.role === 'BASS') {
                 if (head.x < GRID_SIZE / 2){
                     if (head.y < GRID_SIZE / 2) {
-                        audioEngine.playBass(45);
+                        audioEngine.playBass(57, snake.body.length);
                     }
                     else {
-                        audioEngine.playBass(49);
+                        audioEngine.playBass(61, snake.body.length);
                     }
                 }
                 else {
                     if (head.y < GRID_SIZE / 2) {
-                        audioEngine.playBass(52);
+                        audioEngine.playBass(64, snake.body.length);
                     }
                     else {
-                        audioEngine.playBass(57);
+                        audioEngine.playBass(57, snake.body.length);
                     }
                 }
             }
             else if (snake.role === 'PAD') {
-                const chords = [[45], [49], [52], [57], [58], [61]];
-                const chordIdx = (head.x + head.y) % 6;
-                audioEngine.playPad(chords[chordIdx]);
+                const chords = [[49, 52], [52, 57], [57, 61], [58, 61], [61, 64]];
+                const chordIdx = (head.x + head.y) % 5;
+                audioEngine.playPad(chords[chordIdx], snake.body.length);
             }
             else if (snake.role === 'LEAD') {
                 const note = [45, 46, 49, 50, 52, 53, 56, 57, 58, 61, 62, 64, 65, 68, 69, 70];
                 const noteIdx = head.x + (GRID_SIZE - head.y) - 1;
-                audioEngine.playLead(note[noteIdx]);
+                audioEngine.playLead(note[noteIdx], snake.body.length);
             }
             else if (snake.role === 'PERC') {
                 if ((head.x + head.y) % 2 === 1) {
-                    audioEngine.playPerc(2);
+                    audioEngine.playPerc(2, snake.body.length);
                 }
                 else if((head.x - head.y) % 4 === 0) {
-                    audioEngine.playPerc(1);
+                    audioEngine.playPerc(1, snake.body.length);
                 }
                 else {
-                    audioEngine.playPerc(0);
+                    audioEngine.playPerc(0, snake.body.length);
                 }
             }
         });

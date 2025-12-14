@@ -1,37 +1,38 @@
 public class Instruments {
     
-    fun void playBass(float note) {
+    fun void playBass(float note, int mix) {
         <<< "Playing Bass Note: " + note >>>;
         SinOsc osc => LPF filter => ADSR env => dac;
         
-        env.set(10::ms, 200::ms, 0.6, 100::ms);
+        env.set(10::ms, 200::ms, Math.min(0.1*(mix-1),1.0), 100::ms);
+        0.7 => osc.gain;
         
         400.0 => filter.freq;
         
         Std.mtof(note - 12.0) => osc.freq;
         
         env.keyOn();
-        200::ms => now;
+        Global.quarter => now;
         env.keyOff();
         100::ms => now;
     }
 
-    fun void playPad(float note, float velocity) {
+    fun void playPad(float note, float velocity, int mix) {
         <<< "Playing Pad Note: " + note + " with velocity: " + velocity >>>;
         SawOsc osc1 => ADSR env => LPF lpf => NRev verb => dac;
         SawOsc osc2 => env;
         SawOsc osc3 => env;
         
         0.15 => verb.mix;
-        env.set(300::ms, 200::ms, 0.5, 300::ms);
+        env.set(100::ms, 200::ms, 0.7, 100::ms);
 
         1000.0 => lpf.freq;
         
-        Std.mtof(note+12) => osc1.freq;
+        Std.mtof(note) => osc1.freq;
         velocity * 0.15 => osc1.gain;
-        Std.mtof(note+12.2) => osc2.freq;
+        Std.mtof(note+0.02*(mix-1)) => osc2.freq;
         velocity * 0.15 => osc2.gain;
-        Std.mtof(note+11.8) => osc3.freq;
+        Std.mtof(note-0.02*(mix-1)) => osc3.freq;
         velocity * 0.15 => osc3.gain;
         
         env.keyOn();
@@ -40,7 +41,7 @@ public class Instruments {
         Global.quarter*2.0 => now;
     }
 
-    fun void playLead(float note) {
+    fun void playLead(float note, float mix) {
         <<< "Playing Lead Note: " + note >>>;
         SqrOsc osc => LPF lpf => ADSR env => NRev rev => dac;
         SinOsc lfo => blackhole;
@@ -50,7 +51,7 @@ public class Instruments {
 
         2000.0 => lpf.freq;
 
-        0.15 => rev.mix;
+        0.03*(mix-1.0) => rev.mix;
         env.set(5::ms, 80::ms, 1.0, 300::ms);
         
         Std.mtof(note+12) => float freq;
@@ -69,10 +70,10 @@ public class Instruments {
         }
     }
 
-    fun void playPerc(int type) {
+    fun void playPerc(int type, int mix) {
         <<< "Playing Percussion Type: " + type >>>;
         SndBuf buffer => NRev rev => dac;
-        0.05 => rev.mix;
+        0.02*(mix - 1) => rev.mix;
         if(type == 0) {
             "808 Kick.wav" => buffer.read;
         }

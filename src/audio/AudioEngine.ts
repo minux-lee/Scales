@@ -40,22 +40,22 @@ class AudioEngine {
     }
 
     // 소리 트리거 메서드들
-    public playBass(note: number) {
-        this.runCode(`Instruments inst; inst.playBass(${note});`);
+    public playBass(note: number, mix: number) {
+        this.runCode(`Instruments inst; inst.playBass(${note},${mix});`);
     }
 
-    public playPad(notes: number[]) {
+    public playPad(notes: number[], mix: number) {
         notes.forEach(n => {
-            this.runCode(`Instruments inst; inst.playPad(${n}, 0.5);`);
+            this.runCode(`Instruments inst; inst.playPad(${n}, 0.5,${mix});`);
         });
     }
 
-    public playLead(note: number) {
-        this.runCode(`Instruments inst; inst.playLead(${note});`);
+    public playLead(note: number, mix: number) {
+        this.runCode(`Instruments inst; inst.playLead(${note},${mix});`);
     }
 
-    public playPerc(type: number) {
-        this.runCode(`Instruments inst; inst.playPerc(${type});`);
+    public playPerc(type: number, mix: number) {
+        this.runCode(`Instruments inst; inst.playPerc(${type},${mix});`);
     }
 
     public setBPM(bpm: number) {
