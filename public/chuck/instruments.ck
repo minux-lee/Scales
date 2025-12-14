@@ -27,11 +27,11 @@ public class Instruments {
 
         1000.0 => lpf.freq;
         
-        Std.mtof(note+12) => osc1.freq;
+        Std.mtof(note) => osc1.freq;
         velocity * 0.15 => osc1.gain;
-        Std.mtof(note+12.2) => osc2.freq;
+        Std.mtof(note+0.2) => osc2.freq;
         velocity * 0.15 => osc2.gain;
-        Std.mtof(note+11.8) => osc3.freq;
+        Std.mtof(note-0.2) => osc3.freq;
         velocity * 0.15 => osc3.gain;
         
         env.keyOn();

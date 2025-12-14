@@ -191,8 +191,8 @@ export const useGameStore = create<GameState>((set, get) => ({
                 }
             }
             else if (snake.role === 'PAD') {
-                const chords = [[45], [49], [52], [57], [58], [61]];
-                const chordIdx = (head.x + head.y) % 6;
+                const chords = [[49], [52], [57], [58], [61], [64]];
+                const chordIdx = (head.x + head.y) % 5;
                 audioEngine.playPad(chords[chordIdx]);
             }
             else if (snake.role === 'LEAD') {
