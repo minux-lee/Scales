@@ -28,29 +28,34 @@ export const AboutSection: React.FC = () => {
         <section className="w-full bg-slate-950 py-24 px-4 border-t border-slate-900">
             <div className="max-w-5xl mx-auto space-y-24">
 
+                {/* Introduction Section */}
                 <div className="text-center space-y-6">
                     <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
                         THE ARCHITECTURE OF <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-emerald-400">
-                            DIGITAL ENSEMBLE
+                            SCALES
                         </span>
                     </h2>
                     <p className="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
-                        Polyphonic Snake는 고전 게임의 규칙을 현대적인 Generative Music 시스템으로 재해석한 프로젝트입니다.
-                        단순한 승패를 넘어, 플레이어와 AI가 만들어내는 우연과 질서의 조화를 청각적 경험으로 변환합니다.
+                        The title <strong>'SCALES'</strong> embodies a double meaning: the <span className="text-slate-200">reptilian scales</span> that form the snake's body, and the <span className="text-slate-200">musical scales</span> that form the ensemble's harmony.
+                    </p>
+                    <p className="text-slate-500 max-w-2xl mx-auto text-base leading-relaxed">
+                        This project reimagines the classic rules of the Snake game into a modern Generative Music System.
+                        Going beyond simple win/loss mechanics, it transforms the interplay of chance and order created by players and AI into a unique auditory experience.
                     </p>
                 </div>
 
+                {/* Motivation Section */}
                 <div>
                     <SectionTitle>💡 Motivation & Concept</SectionTitle>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-4 text-slate-300 leading-relaxed">
                             <p>
                                 <strong className="text-white">"One Screen, Multiple Boards."</strong><br />
-                                일반적인 Snake 게임은 혼자만의 고립된 경험입니다. 하지만 "여러 개의 게임이 한 공간에서 동시에 진행된다면 어떨까?"라는 질문에서 이 프로젝트는 시작되었습니다.
+                                The typical Snake game is a solitary experience. This project began with the question: "What if multiple games ran simultaneously in one space?"
                             </p>
                             <p>
-                                각기 다른 속도와 패턴을 가진 4개의 Agent가 서로 상호작용하며 음악적 앙상블(Ensemble)을 만들어내는 것이 목표입니다. 이를 위해 Grid 좌표를 MIDI Note로, 충돌 이벤트를 Rhythm으로 변환하는 독자적인 알고리즘을 설계했습니다.
+                                The goal is to create a musical ensemble where four agents with different speeds and patterns interact. We designed a unique algorithm that translates Grid coordinates into MIDI Notes and collision events into Rhythms.
                             </p>
                         </div>
                         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 flex flex-col justify-center gap-4">
@@ -81,6 +86,7 @@ export const AboutSection: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Tech Stack Section */}
                 <div>
                     <SectionTitle>🛠 Tech Stack & Engineering</SectionTitle>
                     <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800">
@@ -94,7 +100,7 @@ export const AboutSection: React.FC = () => {
                                     <TechBadge>Tailwind CSS</TechBadge>
                                 </div>
                                 <p className="text-sm text-slate-400">
-                                    고성능 렌더링을 위해 React의 Reconciliation 과정을 최적화했습니다.
+                                    Optimized React's reconciliation process for high-performance rendering.
                                 </p>
                             </div>
                             <div>
@@ -105,7 +111,7 @@ export const AboutSection: React.FC = () => {
                                     <TechBadge>Web Audio API</TechBadge>
                                 </div>
                                 <p className="text-sm text-slate-400">
-                                    Zustand의 Transient Update를 사용하여 4개의 게임 루프와 오디오 엔진 간의 <span className="text-white">500ms Tick Sync</span>를 완벽하게 유지합니다.
+                                    Maintains perfect <span className="text-white">500ms Tick Sync</span> between 4 game loops and the audio engine using Zustand's transient updates.
                                 </p>
                             </div>
                             <div>
@@ -116,46 +122,48 @@ export const AboutSection: React.FC = () => {
                                     <TechBadge>DQN</TechBadge>
                                 </div>
                                 <p className="text-sm text-slate-400">
-                                    Python 환경에서 Reinforcement Learning(DQN)으로 학습된 모델을 브라우저로 이식하여 추론(Inference)합니다.
+                                    Inferences a pre-trained Reinforcement Learning (DQN) model from Python directly in the browser.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* Musical Logic Section */}
                 <div>
                     <SectionTitle>🎹 Musical Logic Implementation</SectionTitle>
                     <p className="text-slate-400 mb-8">
-                        각 뱀(Snake)은 단순한 게임 오브젝트가 아닌 하나의 악기입니다. 위치값(x, y)은 실시간으로 오디오 파라미터로 변환됩니다.
+                        Each snake is not just a game object, but an instrument. Position values (x, y) are converted into audio parameters in real-time.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <RoleCard
                             role="BASS"
                             color="text-blue-400"
-                            desc="음악의 토대를 담당합니다. Y축의 위치가 낮을수록(화면 아래쪽) 더 무거운 베이스 음을 연주합니다."
+                            desc="Provides the musical foundation. Lower Y positions trigger deeper bass notes."
                             logic="Scale Index = (GRID_SIZE - 1 - Y)"
                         />
                         <RoleCard
                             role="PAD (HARMONY)"
                             color="text-purple-400"
-                            desc="공간을 채우는 화성을 연주합니다. X축 영역에 따라 4가지 코드 진행(Chord Progression)을 순환합니다."
+                            desc="Fills the harmony. Cycles through 4 chord progressions based on the X-axis region."
                             logic="Chord Index = floor(X / 2) % 4"
                         />
                         <RoleCard
                             role="LEAD (MELODY)"
                             color="text-red-400"
-                            desc="주선율을 담당합니다. 대각선 이동을 고려하여 X와 Y 좌표의 조합으로 역동적인 음높이 변화를 만듭니다."
+                            desc="Plays the melody. Creates dynamic pitch changes using a combination of X and Y coordinates to account for diagonal movement."
                             logic="Note = Base + X + (GRID_SIZE - Y)"
                         />
                         <RoleCard
                             role="PERC (RHYTHM)"
                             color="text-emerald-400"
-                            desc="리듬을 담당합니다. 그리드의 상단이나 하단 벽에 닿는 순간(Kick/Snare) 트리거됩니다."
+                            desc="Provides the rhythm. Triggered (Kick/Snare) when touching the top or bottom walls of the grid."
                             logic="Trigger if Y === 0 or Y === GRID_SIZE - 1"
                         />
                     </div>
                 </div>
 
+                {/* AI Architecture Section */}
                 <div>
                     <SectionTitle>🧠 AI Architecture: From Python to Browser</SectionTitle>
                     <div className="bg-slate-900/30 p-8 rounded-xl border border-slate-800">
@@ -163,9 +171,8 @@ export const AboutSection: React.FC = () => {
                             <div className="flex-1 space-y-4">
                                 <h4 className="text-lg font-bold text-white">The Brain (DQN Agent)</h4>
                                 <p className="text-slate-400 text-sm leading-relaxed">
-                                    AI 에이전트는 11개의 감각 정보(Sensors)를 통해 세상을 인식합니다.
-                                    자신의 머리 기준으로 전후좌우의 장애물 유무, 현재 진행 방향, 그리고 먹이(Target)의 상대적 위치를 파악하여
-                                    가장 높은 보상을 얻을 수 있는 행동(Action)을 결정합니다.
+                                    The AI Agent perceives the world through 11 sensors.
+                                    It analyzes obstacles (front/back/left/right), current direction, and relative food position to decide the action with the highest expected reward.
                                 </p>
                                 <ul className="space-y-2 mt-4">
                                     <li className="flex items-center gap-3 text-sm text-slate-300">
