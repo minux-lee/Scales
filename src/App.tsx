@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { useGameStore } from './store/useStore';
 import { Board } from './components/Board';
@@ -24,19 +25,19 @@ function App() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            const humanSnakes = snakes.filter(s => s.type === 'HUMAN').sort((a, b) => a.id - b.id);
-            const player1 = humanSnakes[0];
-            const player2 = humanSnakes[1];
-
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
             }
 
+            const humanSnakes = snakes.filter(s => s.type === 'HUMAN').sort((a, b) => a.id - b.id);
+            const player1 = humanSnakes[0];
+            const player2 = humanSnakes[1];
+
             if (player1) {
-                if (e.key === 'w') setDirection(player1.id, 'UP');
-                if (e.key === 's') setDirection(player1.id, 'DOWN');
-                if (e.key === 'a') setDirection(player1.id, 'LEFT');
-                if (e.key === 'd') setDirection(player1.id, 'RIGHT');
+                if (e.key === 'w' || e.key === 'W') setDirection(player1.id, 'UP');
+                if (e.key === 's' || e.key === 'S') setDirection(player1.id, 'DOWN');
+                if (e.key === 'a' || e.key === 'A') setDirection(player1.id, 'LEFT');
+                if (e.key === 'd' || e.key === 'D') setDirection(player1.id, 'RIGHT');
             }
             if (player2) {
                 if (e.key === 'ArrowUp') setDirection(player2.id, 'UP');
@@ -70,28 +71,42 @@ function App() {
 
     return (
         <div className="bg-slate-950 min-h-screen">
-            <div className="min-h-screen flex flex-col items-center justify-center p-8 relative">
-                <header className="mb-8 text-center">
-                    <h1 className="text-4xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-emerald-400 mb-2">
-                        POLYPHONIC SNAKE
+            <div className="min-h-screen flex flex-col items-center p-8">
+                <header className="mb-8 text-center shrink-0">
+                    <h1 className="text-6xl font-black tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-emerald-400 mb-2 font-display">
+                        SCALES
                     </h1>
-                    <p className="text-slate-400 text-sm">DYNAMIC ENSEMBLE SYSTEM</p>
+                    <p className="text-slate-400 text-xs tracking-[0.3em] uppercase">
+                        Generative Audio Ensemble
+                    </p>
                 </header>
 
-                <div className="flex flex-wrap justify-center gap-8 mb-12 max-w-7xl">
-                    {snakes.map((snake) => (
-                        <Board
-                            key={snake.id}
-                            snake={snake}
-                            gridSize={gridSize}
-                            onToggleType={() => togglePlayerType(snake.id)}
-                            onRemove={() => removeSnake(snake.id)}
-                            controls={getControlsLabel(snake.id, snake.type)}
-                        />
-                    ))}
+                <div className="flex-1 w-full flex items-center justify-center my-4">
+                    <div className="flex flex-wrap justify-center gap-8 max-w-7xl">
+                        <AnimatePresence mode="popLayout">
+                            {snakes.map((snake) => (
+                                <motion.div
+                                    key={snake.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                >
+                                    <Board
+                                        snake={snake}
+                                        gridSize={gridSize}
+                                        onToggleType={() => togglePlayerType(snake.id)}
+                                        onRemove={() => removeSnake(snake.id)}
+                                        controls={getControlsLabel(snake.id, snake.type)}
+                                    />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-6 z-10">
+                <div className="flex flex-col items-center gap-6 z-10 shrink-0 mt-8">
                     <div className="flex flex-wrap justify-center gap-2 p-2 bg-slate-900 rounded-lg border border-slate-800 max-w-full">
                         <span className="px-3 py-2 text-slate-500 text-xs font-bold self-center">ADD:</span>
                         {(['BASS', 'PAD', 'LEAD', 'PERC'] as Role[]).map(role => (
@@ -121,9 +136,9 @@ function App() {
                     </div>
                 </div>
 
-                <div className="absolute bottom-8 animate-bounce text-slate-600 flex flex-col items-center gap-2 cursor-pointer"
+                <div className="mt-12 mb-4 animate-bounce text-slate-600 flex flex-col items-center gap-2 cursor-pointer shrink-0"
                     onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-                    <span className="text-xs font-bold tracking-widest uppercase">About this project</span>
+                    <span className="text-xs font-bold tracking-widest uppercase">System Architecture</span>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
