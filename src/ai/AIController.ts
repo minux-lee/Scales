@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs';
 import { GRID_SIZE } from '../game/Snake';
 
 let model: tf.GraphModel | tf.LayersModel | null = null;
-const MODEL_PATH = '/models/snake-rl/model.json';
+const MODEL_PATH = './models/snake-rl/model.json';
 
 export async function loadModel() {
     try {
