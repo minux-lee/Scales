@@ -28,6 +28,10 @@ function App() {
             const player1 = humanSnakes[0];
             const player2 = humanSnakes[1];
 
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                e.preventDefault();
+            }
+
             if (player1) {
                 if (e.key === 'w') setDirection(player1.id, 'UP');
                 if (e.key === 's') setDirection(player1.id, 'DOWN');
@@ -40,6 +44,8 @@ function App() {
                 if (e.key === 'ArrowLeft') setDirection(player2.id, 'LEFT');
                 if (e.key === 'ArrowRight') setDirection(player2.id, 'RIGHT');
             }
+
+            if (e.key === ' ') togglePlay();
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
