@@ -1,5 +1,7 @@
 # SCALES: Generative Audio Ensemble
 
+![SCALES _ Generative Audio Ensemble · 11 07am · 12-15](https://github.com/user-attachments/assets/31c2636a-e7cd-4806-86d4-3f39c33e52d7)
+
 > **"The collision of agents becomes the coincidence of rhythm."**
 
 **SCALES** is a Generative Music System that reimagines the classic rules of the Snake game. The title embodies a double meaning: the **reptilian scales** that form the snake's body, and the **musical scales** that form the ensemble's harmony.
