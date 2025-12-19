@@ -157,32 +157,32 @@ export const AboutSection: React.FC = () => {
                 <div>
                     <SectionTitle>🎹 Musical Logic Implementation</SectionTitle>
                     <p className="text-slate-400 mb-8">
-                        Each snake is not just a game object, but an instrument. Position values (x, y) are converted into audio parameters in real-time.
+                        Each snake is not just a game object, but an instrument. Position values (x, y), the direction of snake (NEWS), and its length are converted into audio parameters in real-time. There are also other modes you can select.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <RoleCard
                             role="BASS"
                             color="text-blue-400"
-                            desc="The 64 cells are divided into four quadrants. Plays A, C#, and E notes based on the snake's quadrant. As the snake gets longer, the sustain gain increases."
-                            logic="Quadrant Check (x < 4, y < 4)"
+                            desc="Depending on the direction of the snake's head, the root and fifth of the corresponding chord are played. As the snake gets longer, the sustain gain increases."
+                            logic="Bass Index = snake.direction_i"
                         />
                         <RoleCard
                             role="PAD (HARMONY)"
                             color="text-purple-400"
-                            desc="Cycles through 5 dyad chords (A add b9) based on the sum of X and Y. The length of the snake connects to the detune level of the union."
-                            logic="Chord Index = (x + y) % 5"
+                            desc="Among the chord tones, a total of four different combinations of chord tones are played depending on the value of x + y. The length of the snake connects to the detune level of the union."
+                            logic="Chord Index = (x + y) % 4"
                         />
                         <RoleCard
                             role="LEAD (MELODY)"
                             color="text-red-400"
-                            desc="Notes from an Arabic scale are played based on the x-y coordinates, evoking a snake-charming flute. As the snake gets longer, the reverb level increases."
-                            logic="Note = Base + X + (GRID - Y) - 1"
+                            desc="For each mode, notes are played according to the corresponding scale. Occasionally, the rhythm is subdivided during playback. As the snake gets longer, the reverb level increases."
+                            logic="Note Index = x (, y)"
                         />
                         <RoleCard
                             role="PERC (RHYTHM)"
                             color="text-emerald-400"
-                            desc="Arranges an 808 Hi-hat after a Kick or Snare. Kick/Snare alternates when moving straight. As the snake gets longer, the reverb mix increases."
-                            logic="(x + y) % 2 & (x - y) % 4"
+                            desc="Drum samples are played according to each mode. Depending on the direction of the head, the number of times a closed hi-hat or a triangle is triggered varies. As the snake gets longer, the reverb mix increases."
+                            logic="#hihat or #triangle = f(snake.direction_i)"
                         />
                     </div>
                 </div>
